@@ -2,6 +2,7 @@ import React from "react";
 
 import { PureInboxScreen } from "./InboxScreen";
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default {
   component: PureInboxScreen,
   title: "PureInboxScreen",
