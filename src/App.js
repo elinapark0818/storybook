@@ -1,5 +1,13 @@
-import logo from './logo.svg';
-import './App.css';
+import logo from "./logo.svg";
+import "./App.css";
+
+// * App 렌더링 구성요소 변경. (결국은 라우터를 사용하게 될거다)
+import "./index.css";
+import store from "./lib/store";
+
+// * redux Provider 사용
+import { Provider } from "react-redux";
+import { InboxScreen } from "./components/InboxScreen";
 
 function App() {
   return (
@@ -18,6 +26,9 @@ function App() {
           Learn React
         </a>
       </header>
+      <Provider store={store}>
+        <InboxScreen />
+      </Provider>
     </div>
   );
 }
