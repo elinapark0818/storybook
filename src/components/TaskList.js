@@ -1,12 +1,12 @@
 import React from "react";
-import Task from "./Task";
-
-// * 구성요소가 커짐에 따라 요구사항도 커진다.
-// * 소품 요구 사항을 정의한다.
-// * propTypes 정의한 것을 재사용하자.
 import PropTypes from "prop-types";
 
-export default function TaskList({ loading, tasks, onPinTask, onArchiveTask }) {
+import Task from "./Task";
+
+import { useDispatch, useSelector } from "react-redux";
+import { updateTaskState } from "../lib/store";
+
+export function PureTaskList({ loading, tasks, onPinTask, onArchiveTask }) {
   const events = {
     onPinTask,
     onArchiveTask,
@@ -16,17 +16,14 @@ export default function TaskList({ loading, tasks, onPinTask, onArchiveTask }) {
     <div className="loading-item">
       <span className="glow-checkbox" />
       <span className="glow-text">
-        <span>Loading</span>
-        <span>cool</span>
-        <span>state</span>
+        <span>Loading</span> <span>cool</span> <span>state</span>
       </span>
     </div>
   );
-
   if (loading) {
     return (
       <div className="list-items">
-        잠시만 기다려주세요...
+        로딩중입니다...
         {LoadingRow}
         {LoadingRow}
         {LoadingRow}
@@ -36,12 +33,11 @@ export default function TaskList({ loading, tasks, onPinTask, onArchiveTask }) {
       </div>
     );
   }
-
   if (tasks.length === 0) {
     return (
       <div className="list-items">
-        Task가 없습니다.
         <div className="wrapper-message">
+          Task가 없습니다.
           <span className="icon-check" />
           <div className="title-message">You have no tasks</div>
           <div className="subtitle-message">Sit back and relax</div>
@@ -49,10 +45,9 @@ export default function TaskList({ loading, tasks, onPinTask, onArchiveTask }) {
       </div>
     );
   }
-
   const tasksInOrder = [
-    ...tasks.filter((task) => task.state === "TASK_PINNED"),
-    ...tasks.filter((task) => task.state !== "TASK_PINNED"),
+    ...tasks.filter((t) => t.state === "TASK_PINNED"),
+    ...tasks.filter((t) => t.state !== "TASK_PINNED"),
   ];
 
   return (
@@ -64,16 +59,44 @@ export default function TaskList({ loading, tasks, onPinTask, onArchiveTask }) {
   );
 }
 
-TaskList.propTypes = {
+PureTaskList.propTypes = {
   /** Checks if it's in loading state */
   loading: PropTypes.bool,
   /** The list of tasks */
   tasks: PropTypes.arrayOf(Task.propTypes.task).isRequired,
   /** Event to change the task to pinned */
-  onPinTask: PropTypes.func,
+  onPinTask: PropTypes.func.isRequired,
   /** Event to change the task to archived */
-  onArchiveTask: PropTypes.func,
+  onArchiveTask: PropTypes.func.isRequired,
 };
-TaskList.defaultProps = {
+
+PureTaskList.defaultProps = {
   loading: false,
 };
+
+export function TaskList() {
+  // We're retrieving our state from the store
+  const tasks = useSelector((state) => state.tasks);
+  // We're defining an variable to handle dispatching the actions back to the store
+  const dispatch = useDispatch();
+
+  const pinTask = (value) => {
+    // We're dispatching the Pinned event back to our store
+    dispatch(updateTaskState({ id: value, newTaskState: "TASK_PINNED" }));
+  };
+  const archiveTask = (value) => {
+    // We're dispatching the Archive event back to our store
+    dispatch(updateTaskState({ id: value, newTaskState: "TASK_ARCHIVED" }));
+  };
+
+  const filteredTasks = tasks.filter(
+    (t) => t.state === "TASK_INBOX" || t.state === "TASK_PINNED"
+  );
+  return (
+    <PureTaskList
+      tasks={filteredTasks}
+      onPinTask={(task) => pinTask(task)}
+      onArchiveTask={(task) => archiveTask(task)}
+    />
+  );
+}
