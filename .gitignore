@@ -5,10 +5,6 @@
 /.pnp
 .pnp.js
 .env
-.eslintcache
-/.github
-storybook-static
-/build-storybook.log
 
 # testing
 /coverage
